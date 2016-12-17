@@ -1,10 +1,12 @@
 const Asteroid = require('./asteroid.js');
-
+const Ship = require('./ship.js');
 const DIM_X = 1000;
-const DIM_Y = 1000;
-const NUM_ASTEROIDS = 190;
+const DIM_Y = 500;
+const NUM_ASTEROIDS = 15;
 
 function Game() {
+  this.start_pos = [DIM_X/2, DIM_Y/2];
+  this.ship = new Ship(this.start_pos, this);
   this.asteroids = [];
   for (let i = 0; i < NUM_ASTEROIDS; i++) {
     this.addAsteroids();
@@ -12,9 +14,16 @@ function Game() {
 
 }
 
+Game.prototype.startPosition = function() {
+  return [DIM_X/2, DIM_Y/2];
+};
+
+Game.prototype.allObjects = function() {
+  return this.asteroids.concat([this.ship]);
+};
 
 Game.prototype.addAsteroids = function() {
-  let asteroid = new Asteroid(this.randomPosition());
+  let asteroid = new Asteroid(this.randomPosition(), this);
   this.asteroids.push(asteroid);
 };
 
@@ -26,24 +35,54 @@ Game.prototype.randomPosition = function() {
 
 Game.prototype.draw = function(ctx) {
   ctx.clearRect(0, 0, DIM_X, DIM_Y);
-  this.asteroids.forEach ( (asteroid) => {
-    asteroid.draw(ctx);
+  this.allObjects().forEach ( (obj) => {
+    obj.draw(ctx);
   });
+};
+
+Game.prototype.remove = function(obj) {
+  let idx = this.allObjects().indexOf(obj);
+  this.allObjects().splice(idx, 1);
+};
+
+Game.prototype.wrap = function(pos) {
+  if (pos[0] > DIM_X) {
+    pos[0] = 0;
+  }
+  if (pos[1] > DIM_Y) {
+    pos[1] = 0;
+  }
+  if (pos[0] < 0) {
+    pos[0] = DIM_X;
+  }
+  if (pos[1] < 0) {
+    pos[1] = DIM_Y;
+  }
+  return pos;
+};
+
+Game.prototype.checkCollisions = function() {
+
+  for (let i = 0; i < this.allObjects().length - 1; i++) {
+    for (let j = i + 1; j < this.allObjects().length; j++) {
+      if (this.allObjects()[i].isCollidedWith(this.allObjects()[j])) {
+        this.allObjects()[i].collidedWith(this.allObjects()[j]);
+      }
+    }
+  }
+};
+
+Game.prototype.step = function(ctx) {
+  this.moveObjects(ctx);
+  this.checkCollisions();
 };
 
 Game.prototype.moveObjects = function(ctx) {
-  this.asteroids.forEach((asteroid) => {
-    asteroid.move();
+  this.allObjects().forEach((obj) => {
+    obj.move();
   });
 };
 
-let game = new Game();
-var canvas = document.getElementById('myCanvas');
-var context = canvas.getContext('2d');
 
-setInterval( () => {
-  game.draw(context);
-  game.moveObjects(context);
-}, 1000/60);
 
 module.exports = Game;

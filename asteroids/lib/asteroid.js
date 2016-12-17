@@ -1,15 +1,31 @@
 const MovingObject = require('./moving_object.js');
 const Util = require('./util.js');
+const Ship = require('./ship.js');
 
-function Asteroid(pos) {
+Asteroid.COLOR = 'green';
+Asteroid.RADIUS = 20;
+
+function Asteroid(pos, game) {
   this.pos = pos;
   MovingObject.call(this, {
     pos: pos,
-    vel: randomVec(3),
+    vel: randomVec(3 * Math.random() + 1),
     radius: Asteroid.RADIUS,
-    color: Asteroid.COLOR
+    color: Asteroid.COLOR,
+    game: game
   });
 }
+
+Util.inherits(Asteroid, MovingObject);
+
+Asteroid.prototype.collidedWith = function(otherObject) {
+  if (otherObject instanceof Ship ) {
+    otherObject.relocate();
+
+  }
+
+
+};
 
 function randomVec(length) {
   const deg = 2 * Math.PI * Math.random();
@@ -17,19 +33,14 @@ function randomVec(length) {
 }
 
 
-Asteroid.COLOR = 'green';
-Asteroid.RADIUS = '20';
 
-Util.inherits(Asteroid, MovingObject);
+const thing1 = new Asteroid(
+  {pos: [0,0], vel: 0, radius: 10, color: 'green'}
+);
+const thing2 = new Asteroid(
+  {pos: [25,72], vel: 0, radius: 10, color: 'green'}
+);
 
-// const test = new Asteroid(
-//   [0,0]
-// );
+console.log(thing1.isCollidedWith(thing2));
 
-
-//
-// var canvas = document.getElementById('myCanvas');
-// var context = canvas.getContext('2d');
-// test.draw(context);
-//
 module.exports = Asteroid;
