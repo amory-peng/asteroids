@@ -8,7 +8,7 @@ function Game() {
   this.start_pos = [DIM_X/2, DIM_Y/2];
   this.ship = new Ship(this.start_pos, this);
   this.asteroids = [];
-  for (let i = 0; i < NUM_ASTEROIDS; i++) {
+  while (this.asteroids.length < NUM_ASTEROIDS) {
     this.addAsteroids();
   }
 
@@ -24,6 +24,22 @@ Game.prototype.allObjects = function() {
 
 Game.prototype.addAsteroids = function() {
   let asteroid = new Asteroid(this.randomPosition(), this);
+  //check for collisions on spawn
+  let needNew = true;
+  while (needNew === true) {
+    needNew = false;
+    for (let i = 0; i < this.asteroids.length; i++) {
+      console.log(asteroid.pos, this.asteroids[i].pos);
+      if (asteroid.isCollidedWith(this.asteroids[i])) {
+        console.log(this.asteroids);
+        needNew = true;
+      }
+    }
+    if (needNew) {
+      asteroid.pos = this.randomPosition();
+    }
+    console.log(needNew);
+  }
   this.asteroids.push(asteroid);
 };
 
@@ -73,6 +89,7 @@ Game.prototype.checkCollisions = function() {
 };
 
 Game.prototype.step = function(ctx) {
+  this.checkCollisions();
   this.moveObjects(ctx);
   this.checkCollisions();
 };

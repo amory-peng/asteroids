@@ -15,7 +15,7 @@ MovingObject.prototype.draw = function(ctx) {
   ctx.closePath();
   ctx.fillStyle = this.color;
   ctx.fill();
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 2;
   ctx.strokeStyle = '#003300';
   ctx.stroke();
 };
